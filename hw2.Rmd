@@ -1,0 +1,38 @@
+---
+title: "Homework Assignment 2"
+author: "Kendall Cohen and Danielle DeVito "
+date: 'Due Sun Nov 08, 2020 11:59PM'
+output:
+  html_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+jan <- read.csv("201901-citibike-tripdata.csv")
+feb <- read.csv("201902-citibike-tripdata.csv")
+mar <- read.csv("201903-citibike-tripdata.csv")
+apr <- read.csv("201904-citibike-tripdata.csv")
+may <- read.csv("201905-citibike-tripdata.csv") 
+jun <- read.csv("201906-citibike-tripdata.csv")
+jul <- read.csv("201907-citibike-tripdata.csv")
+aug <- read.csv("201908-citibike-tripdata.csv")
+sept <- read.csv("201909-citibike-tripdata.csv")
+oct <- read.csv("201910-citibike-tripdata.csv")
+nov <- read.csv("201911-citibike-tripdata.csv")
+dec <- read.csv("201912-citibike-tripdata.csv")
+
+combined_files <- bind_rows(jan, feb)
+
+
+```
+
+
