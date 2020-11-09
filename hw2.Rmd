@@ -1,5 +1,5 @@
 ---
-title: "Homework Assignment TO 2"
+title: "Homework Assignment 2"
 author: "Kendall Cohen and Danielle DeVito "
 date: 'Due Sun Nov 08, 2020 11:59PM'
 output:
@@ -17,22 +17,197 @@ knitr::opts_chunk$set(echo = TRUE)
 ## R Markdown
 
 ```{r}
-jan <- read.csv("201901-citibike-tripdata.csv")
-feb <- read.csv("201902-citibike-tripdata.csv")
-mar <- read.csv("201903-citibike-tripdata.csv")
-apr <- read.csv("201904-citibike-tripdata.csv")
-may <- read.csv("201905-citibike-tripdata.csv") 
-jun <- read.csv("201906-citibike-tripdata.csv")
-jul <- read.csv("201907-citibike-tripdata.csv")
-aug <- read.csv("201908-citibike-tripdata.csv")
-sept <- read.csv("201909-citibike-tripdata.csv")
-oct <- read.csv("201910-citibike-tripdata.csv")
-nov <- read.csv("201911-citibike-tripdata.csv")
-dec <- read.csv("201912-citibike-tripdata.csv")
 
-combined_files <- bind_rows(jan, feb)
+# Read csv files 
+library(dplyr)
+
+jan <- sample_frac(read.csv("201901-citibike-tripdata.csv"),.01)
+feb <- sample_frac(read.csv("201902-citibike-tripdata.csv"),.01)
+mar <- sample_frac(read.csv("201903-citibike-tripdata.csv"),.01)
+apr <- sample_frac(read.csv("201904-citibike-tripdata.csv"),.01)
+may <- sample_frac(read.csv("201905-citibike-tripdata.csv") ,.01)
+jun <- sample_frac(read.csv("201906-citibike-tripdata.csv"),.01)
+jul <- sample_frac(read.csv("201907-citibike-tripdata.csv"),.01)
+aug <- sample_frac(read.csv("201908-citibike-tripdata.csv"),.01)
+sept <- sample_frac(read.csv("201909-citibike-tripdata.csv"),.01)
+oct <- sample_frac(read.csv("201910-citibike-tripdata.csv"),.01)
+nov <- sample_frac(read.csv("201911-citibike-tripdata.csv"),.01)
+dec <- sample_frac(read.csv("201912-citibike-tripdata.csv"),.01)
 
 
+# Combine monthly data into 2019 data set
+sample_data <- rbind(jan, feb, mar, apr, may, jun, jul, aug, sept, oct, nov, dec)
+
+write.csv(sample_data, "sampleDataFile.csv")
+
+na.omit(combined_files)
+```
+---
+title: "SampleData"
+output: html_document
+Authors: Kendall Cohen and Danielle DeVito
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+
+sample_data <- read.csv("sampleDataFile.csv")
+
+#Explore data 
+str(sample_data)
+summary(sample_data)
+head(sample_data)
+tail(sample_data)
+```
+
+```{r}
+
+
+# Cleaning the gender data 
+sample_data_new <- sample_data %>% filter(!(gender == 0 ))
+
+# Re-code columns as factors as needed 
+sample_data_new$usertype <- as.factor(sample_data_new$usertype)
+sample_data_new$start.station.id <- as.factor(sample_data_new$start.station.id)
+sample_data_new$start.station.name <- as.factor(sample_data_new$start.station.name)
+sample_data_new$end.station.id <- as.factor(sample_data_new$end.station.id)
+sample_data_new$end.station.name <- as.factor(sample_data_new$end.station.name)
+sample_data_new$bikeid <- as.factor(sample_data_new$bikeid)
+sample_data_new$gender <- as.factor(sample_data_new$gender)
+
+# Understanding the data 
+str(sample_data_new)
+summary(sample_data_new)
+head(sample_data_new)
+
+# use date time format to parse through start time and stop time 
+library(chron)
+weekdays <- (weekdays(as.Date(sample_data_new$starttime)))
+weekdays <- as.factor(weekdays)
+
+months <- months(as.Date(sample_data_new$starttime))
+months <- as.factor(months)
+
+```
+
+```{r}
+# Descriptive statistics for birth year 
+mean_birthyear <- mean(sample_data_new$birth.year)
+mean_birthyear
+median_birthyear <- median(sample_data_new$birth.year)
+median_birthyear
+min_birthyear <- min(sample_data_new$birth.year)
+min_birthyear
+max_birthyear <- max(sample_data_new$birth.year)
+max_birthyear
+```
+  
+```{}
+The average birth year is `r mean_birthyear`
+The median of birth years is `r median_birthyear`
+The range of birth years is from `r min_birthyear` to `r max_birthyear`.
+It is important to note that these numbers may be skewed left. There are some birth years in the data that don't make sense, such as those in the 1800s. 
+```
+
+```{r}
+# Descriptive statistics trip duration 
+mean_duration <- round(mean(sample_data_new$tripduration),2)
+mean_duration
+min_tripduration <- min(sample_data_new$tripduration)
+min_tripduration
+max_tripduration <- max(sample_data_new$tripduration)
+max_tripduration
+```
+
+```{}
+The average trip duration is `r mean_duration`
+The trip duration ranges from `r min_tripduration` to `r max_tripduration`
+```
+
+```{r}
+# Descriptive statistics for week days 
+sort(table(weekdays), decreasing=TRUE)[1:3]
+sort(table(weekdays), increasing=TRUE)[1:3]
+```
+
+```{}
+The bikes are most frequently rode on Tuesdays. The next two most popular days are Friday and then Wednesday. The bikes are least frequently rode on Sundays, then Saturdays and Mondays. 
+```
+
+```{r}
+# Descriptive statistics based on months 
+sort(table(months), decreasing=TRUE)[1:12]
+```
+
+```{}
+According the data, September had the highest frequency of bike usage, and February had the lowest frequency. This makes sense since the higher frequency months have warm weather, and the less frequent months have cold weather typically.
+```
+
+```{r}
+# Descriptive statistics for start station ID 
+sort(table(sample_data_new$start.station.name), decreasing=TRUE)[1:3]
+sort(table(sample_data_new$start.station.name), increasing=TRUE)[1:28]
+```
+
+```{}
+The most frequently used start stations are Pershing Square North, 8 Ave & W 31 St, and E 17 St & Broadway.
+There are 26 start stations in this sample data set that have only been used 1 time.
+```
+
+```{r}
+# Descriptive statistics for end station ID 
+sort(table(sample_data_new$end.station.name), decreasing=TRUE)[1:3]
+sort(table(sample_data_new$end.station.name), increasing=TRUE)[1:28] 
+```
+
+```{}
+The most frequently used end stations are Pershing Square North, E 17 St & Broadway and then Broadway & E 22 St.
+There are also 26 end stations in this sample data set that have only been used 1 time. 
+```
+
+```{r}
+# Plot data
+library("ggplot2")
+
+# Plot variables to visualize relationships and patterns. 
+
+ggplot(data = sample_data_new, aes(x=gender)) + geom_bar()
+# This bar graph shows that men ride more than double the amount as women do. 
+
+ggplot(data = sample_data_new, aes(x=usertype)) + geom_bar()
+# It is clear that subscribers are the prominent usertype for Citi bikes. Customer counts pale in comparison. 
+
+ggplot(data = sample_data_new, aes(y=tripduration, x = birth.year, colour = gender)) + geom_point(size = 2, alpha = .5, shape = 18) 
+# Trip durations seem to be longer for people born in the 1960 - 2000 range. Men tend to have longer trip durations than women do. The majority of the outliers in terms of trip durations are males. However, the oldest riders are women. 
+
+ggplot(data = sample_data_new, aes(x=usertype, y = tripduration)) + geom_boxplot(size=1)
+# Subscribers tend to ride longer than customers. However, it is hard to gather much additional data given the outliers and the y axis scale. 
+
+ggplot(data = sample_data_new, aes(x=usertype, y=tripduration)) + geom_point()
+# This visualization confirms that subscribes ride their bikes longer than customers do typically. 
+
+ggplot(data = sample_data_new, aes(x=weekdays)) + geom_bar()
+# This bar graph shows that weekends are the least popular days to ride bikes. Sundays are the least popular with Saturdays behind. Tuesday and Wednesday are the most popular times, with ridership decreasing each day from Wednesday to Sunday. 
+
+ggplot(data = sample_data_new, aes(x=weekdays, y=tripduration)) + geom_point()
+# The day of the week with the widest range of durations is Friday. Fridays, Saturdays and Sundays all have a few very distant outliers. There is very little range on Monday. It is difficult to determine the differences in trip duration by day on this graph given the extreme outliers impact on the y axis scale. 
+
+ggplot(data = sample_data_new, aes(x=gender, y=tripduration, colour = usertype)) + geom_point()
+# This confirms that men typically ride longer than women do. 
+
+ggplot(data = sample_data_new, aes(x=birth.year, colour = gender)) + geom_bar()
+# In this plot, we can see that the majority of people taking city bikes were born in the late 1980s. Both men and women follow similar ridership patterns based on birth year. Men have always used bikes more than females. The distribution is left skewed. 
+
+ggplot(data = sample_data_new, aes(y= usertype, x = birth.year)) + geom_point(size = 2, alpha = .5, shape = 18)
+# It appears as though the subscribers are older than the customers. Other than a few outliers, most customers are concentrated to a tighter range than the subscribers. 
+
+ggplot(data = sample_data_new, aes(x=months)) + geom_bar()
+# The months with the lowest rides are December, February and January. This is likely due to cold weather. September has the highest ridership, followed by August and July. This is likely due to more favorable weather conditions. 
 ```
 
 
